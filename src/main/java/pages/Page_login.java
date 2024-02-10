@@ -18,4 +18,7 @@ public class Page_login {
     public WebElement input_password;
     @FindBy(xpath = "//button[@data-testid='login-button']")
     public WebElement button_login;
+
+    @FindBy(xpath = "//button[contains(text(),'Skip for now')]")
+    public WebElement button_skipPhoneNo;
 }
