@@ -54,7 +54,7 @@ public class DataVerificationTest {
         }
     }
     @Test
-    public void validateHistoryByStore() {
+    public void validateSumOfAllStoresPerMonth() {
         Page_Home pageHome = new Page_Home(driver);
         Page_HistoryStore pageHistoryStore = new Page_HistoryStore(driver);
         String optionToSelect = "History By Store";
@@ -95,23 +95,16 @@ public class DataVerificationTest {
                       pageHistoryStore.table_decValues,pageHistoryStore.table_janValues,
                       pageHistoryStore.table_febValues);
 
-            /*  double sepSum = getMonthSum(pageHistoryStore.table_sepValues);
-              double octSum = getMonthSum(pageHistoryStore.table_octValues);
-              double novSum = getMonthSum(pageHistoryStore.table_novValues);
-              double decSum = getMonthSum(pageHistoryStore.table_decValues);
-              double janSum = getMonthSum(pageHistoryStore.table_janValues);
-              double febSum = getMonthSum(pageHistoryStore.table_febValues);*/
 
               String expectedVal = pageHistoryStore.text_grandTotalSum.getText().substring(1).replace(",", "");;
-              double d = Double.parseDouble(expectedVal);
-              if(fullSum == d){
-                  System.out.println("Grand total equals to UI sum. Calculated sum: "+fullSum+" UI sum: " + d);
+              double dExpectedVal = Double.parseDouble(expectedVal);
+              if(fullSum == dExpectedVal){
+                  System.out.println("Grand total equals to UI sum. Calculated sum: "+fullSum+" UI sum: " + dExpectedVal);
               }
               else{
-                  System.out.println("sum not equals: "+fullSum +"ui sum: " + d);
+                  System.out.println("Grand total not equals to UI sum. Calculated sum: "+fullSum+" UI sum: " + dExpectedVal);
               }
-              System.out.println("ExpectedVal: " + expectedVal);
-              Assert.assertEquals(fullSum,expectedVal);
+              Assert.assertEquals(fullSum,dExpectedVal);
           }catch (Exception e){
               e.printStackTrace();
           }
@@ -154,7 +147,7 @@ public class DataVerificationTest {
                     janData.add(Double.parseDouble(janElement));
                     febData.add(Double.parseDouble(febElement));
                 }
-              //  pageHistoryStore.button_nextData.click();
+                Thread.sleep(5000);
                 if (!pageHistoryStore.button_nextData.getAttribute("class").contains("disabled")) {
                     pageHistoryStore.button_nextData.click();
                     Thread.sleep(1000);
@@ -200,12 +193,12 @@ public class DataVerificationTest {
                 febSum = Double.valueOf(df.format(febSum));
             }
             System.out.println("Aug Sum: " + augSum);
-            System.out.println("Aug Sum: " + sepSum);
-            System.out.println("Aug Sum: " + octSum);
-            System.out.println("Aug Sum: " + novSum);
-            System.out.println("Aug Sum: " + decSum);
-            System.out.println("Aug Sum: " + janSum);
-            System.out.println("Oct Sum: " + febSum);
+            System.out.println("Sep Sum: " + sepSum);
+            System.out.println("Oct Sum: " + octSum);
+            System.out.println("Nov Sum: " + novSum);
+            System.out.println("Dec Sum: " + decSum);
+            System.out.println("Jan Sum: " + janSum);
+            System.out.println("Feb Sum: " + febSum);
 
              totalSum= augSum + sepSum+octSum+novSum+decSum+janSum+febSum;
             System.out.println("total Sum calculated: " + totalSum);
@@ -220,7 +213,6 @@ public class DataVerificationTest {
             //assert here all month values
 
 
-            System.out.println("ExpectedVal: " + expectedAugVal);
         }catch (Exception e){
             e.printStackTrace();
         }
