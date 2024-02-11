@@ -5,6 +5,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -12,6 +13,7 @@ import pages.Page_HistoryStore;
 import pages.Page_Home;
 import pages.Page_login;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +47,7 @@ public class DataVerificationTest {
             pageLogin.input_emailId.sendKeys("qa-engineer-assignment@test.com");
             pageLogin.input_password.sendKeys("QApassword123$");
             pageLogin.button_login.click();
-            Thread.sleep(10000);
+            Thread.sleep(15000);
             pageLogin.button_skipPhoneNo.click();
         }catch (Exception e){
             e.printStackTrace();
@@ -60,7 +62,7 @@ public class DataVerificationTest {
         try {
             //opening history by store
           pageHome.dropdown_3p.click();
-          Thread.sleep(5000);
+          Thread.sleep(10000);
           for(WebElement eValue: pageHome.list_3p){
               if(eValue.getText().equalsIgnoreCase(optionToSelect)){
                   eValue.click();
@@ -72,32 +74,44 @@ public class DataVerificationTest {
           try {
               Thread.sleep(10000);
               pageHistoryStore.dropdown_reversal.click();
-              for(WebElement eValue2: pageHistoryStore.list_reversals){
-                  if(eValue2.getText().equalsIgnoreCase(storeOption)){
-                      eValue2.click();
+              for(WebElement eOption: pageHistoryStore.list_reversals){
+                  if(eOption.getText().equalsIgnoreCase(storeOption)){
+                      eOption.click();
+                      break;
+                  }
+              }
+              scrollToElementByAction(driver,pageHistoryStore.dropdown_rowsPagination);
+              Thread.sleep(5000);
+              pageHistoryStore.dropdown_rowsPagination.click();
+              for(WebElement ePaginationOption: pageHistoryStore.dropdown_rowsPaginationOptions){
+                  if(ePaginationOption.getText().equalsIgnoreCase("50 rows")){
+                      ePaginationOption.click();
                       break;
                   }
               }
               //opening table and calculate
-             /* double sum =0;
-              List<Double> values = new ArrayList<Double>();
-              for(int i = 0;i<pageHistoryStore.table_augValues.size()-1;i++){
-                  String element = pageHistoryStore.table_augValues.get(i).getText().substring(1);
-                          values.add(Double.parseDouble(element));
-              }
-              for (double i: values) {
-                  sum += i;
-              }
-              System.out.println("Sum: " + sum);*/
-              double augSum = getMonthSum(pageHistoryStore.table_augValues);
-              double sepSum = getMonthSum(pageHistoryStore.table_sepValues);
+              double fullSum = getMonthSum(pageHistoryStore.table_augValues,pageHistoryStore.table_sepValues,
+                      pageHistoryStore.table_octValues,pageHistoryStore.table_novValues,
+                      pageHistoryStore.table_decValues,pageHistoryStore.table_janValues,
+                      pageHistoryStore.table_febValues);
+
+            /*  double sepSum = getMonthSum(pageHistoryStore.table_sepValues);
               double octSum = getMonthSum(pageHistoryStore.table_octValues);
               double novSum = getMonthSum(pageHistoryStore.table_novValues);
               double decSum = getMonthSum(pageHistoryStore.table_decValues);
               double janSum = getMonthSum(pageHistoryStore.table_janValues);
+              double febSum = getMonthSum(pageHistoryStore.table_febValues);*/
 
-              String expectedVal = pageHistoryStore.text_augMonthSum.getText();
+              String expectedVal = pageHistoryStore.text_grandTotalSum.getText().substring(1).replace(",", "");;
+              double d = Double.parseDouble(expectedVal);
+              if(fullSum == d){
+                  System.out.println("Grand total equals to UI sum. Calculated sum: "+fullSum+" UI sum: " + d);
+              }
+              else{
+                  System.out.println("sum not equals: "+fullSum +"ui sum: " + d);
+              }
               System.out.println("ExpectedVal: " + expectedVal);
+              Assert.assertEquals(fullSum,expectedVal);
           }catch (Exception e){
               e.printStackTrace();
           }
@@ -106,19 +120,125 @@ public class DataVerificationTest {
         }
     }
 
-    public static double getMonthSum(List<WebElement> monthData){
-        double sum = 0;
-        List<Double> values = new ArrayList<Double>();
+    public static double getMonthSum(List<WebElement> augValues,List<WebElement> sepValues,
+                                     List<WebElement> octValues,List<WebElement> novValues,
+                                     List<WebElement> decValues,List<WebElement> janValues,
+                                     List<WebElement> febValues){
+        Page_HistoryStore pageHistoryStore = new Page_HistoryStore(driver);
+        double augSum = 0,sepSum = 0,octSum = 0,novSum = 0,decSum = 0,janSum = 0,febSum = 0;
+        double totalSum = 0;
+        List<Double> augData = new ArrayList<Double>();
+        List<Double> sepData = new ArrayList<Double>();
+        List<Double> octData = new ArrayList<Double>();
+        List<Double> novData = new ArrayList<Double>();
+        List<Double> decData = new ArrayList<Double>();
+        List<Double> janData = new ArrayList<Double>();
+        List<Double> febData = new ArrayList<Double>();
+        boolean flag = true;
+        try{
+            while(flag){
+                for(int i = 0;i<augValues.size()-1;i++){
+                    String augElement = augValues.get(i).getText().substring(1).replace(",", "");
+                    String sepElement = sepValues.get(i).getText().substring(1).replace(",", "");
+                    String octElement = octValues.get(i).getText().substring(1).replace(",", "");
+                    String novElement = novValues.get(i).getText().substring(1).replace(",", "");
+                    String decElement = decValues.get(i).getText().substring(1).replace(",", "");
+                    String janElement = janValues.get(i).getText().substring(1).replace(",", "");
+                    String febElement = febValues.get(i).getText().substring(1).replace(",", "");
 
-        for(int i = 0;i<monthData.size()-1;i++){
-            String element = monthData.get(i).getText().substring(1);
-            values.add(Double.parseDouble(element));
+                    augData.add(Double.parseDouble(augElement));
+                    sepData.add(Double.parseDouble(sepElement));
+                    octData.add(Double.parseDouble(octElement));
+                    novData.add(Double.parseDouble(novElement));
+                    decData.add(Double.parseDouble(decElement));
+                    janData.add(Double.parseDouble(janElement));
+                    febData.add(Double.parseDouble(febElement));
+                }
+              //  pageHistoryStore.button_nextData.click();
+                if (!pageHistoryStore.button_nextData.getAttribute("class").contains("disabled")) {
+                    pageHistoryStore.button_nextData.click();
+                    Thread.sleep(1000);
+                } else {
+                    flag = false;
+                    System.out.println("In the last page");
+                }
+            }
 
+            for (double i: augData) {
+                augSum += i;
+                DecimalFormat df = new DecimalFormat("#.##");
+                augSum = Double.valueOf(df.format(augSum));
+            }
+            for (double i: sepData) {
+                sepSum += i;
+                DecimalFormat df = new DecimalFormat("#.##");
+                sepSum = Double.valueOf(df.format(sepSum));
+            }
+            for (double i: octData) {
+                octSum += i;
+                DecimalFormat df = new DecimalFormat("#.##");
+                octSum = Double.valueOf(df.format(octSum));
+            }
+            for (double i: novData) {
+                novSum += i;
+                DecimalFormat df = new DecimalFormat("#.##");
+                novSum = Double.valueOf(df.format(novSum));
+            }
+            for (double i: decData) {
+                decSum += i;
+                DecimalFormat df = new DecimalFormat("#.##");
+                decSum = Double.valueOf(df.format(decSum));
+            }
+            for (double i: janData) {
+                janSum += i;
+                DecimalFormat df = new DecimalFormat("#.##");
+                janSum = Double.valueOf(df.format(janSum));
+            }
+            for (double i: febData) {
+                febSum += i;
+                DecimalFormat df = new DecimalFormat("#.##");
+                febSum = Double.valueOf(df.format(febSum));
+            }
+            System.out.println("Aug Sum: " + augSum);
+            System.out.println("Aug Sum: " + sepSum);
+            System.out.println("Aug Sum: " + octSum);
+            System.out.println("Aug Sum: " + novSum);
+            System.out.println("Aug Sum: " + decSum);
+            System.out.println("Aug Sum: " + janSum);
+            System.out.println("Oct Sum: " + febSum);
+
+             totalSum= augSum + sepSum+octSum+novSum+decSum+janSum+febSum;
+            System.out.println("total Sum calculated: " + totalSum);
+            String expectedAugVal = pageHistoryStore.text_augMonthSum.getText();
+            String expectedSepVal = pageHistoryStore.text_septMonthSum.getText();
+            String expectedOctVal = pageHistoryStore.text_octMonthSum.getText();
+            String expectedNovVal = pageHistoryStore.text_novMonthSum.getText();
+            String expectedDecVal = pageHistoryStore.text_decMonthSum.getText();
+            String expectedJanVal = pageHistoryStore.text_janMonthSum.getText();
+            String expectedFebVal = pageHistoryStore.text_febMonthSum.getText();
+
+            //assert here all month values
+
+
+            System.out.println("ExpectedVal: " + expectedAugVal);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        for (double i: values) {
-            sum += i;
+
+        return totalSum;
+    }
+    public static boolean scrollToElementByAction(WebDriver driver, WebElement element) throws Exception {
+        boolean scrollActionDone = false;
+        try {
+
+            Actions action = new Actions(driver);
+            action.moveToElement(element);
+            scrollActionDone = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception("Error while scrolling to element.");
         }
-        System.out.println("Sum: " + sum);
-        return sum;
+
+        return scrollActionDone;
     }
    }

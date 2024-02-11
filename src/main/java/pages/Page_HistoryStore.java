@@ -34,7 +34,27 @@ public class Page_HistoryStore {
     public List<WebElement> table_janValues;
     @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr/td[8]")
     public List<WebElement> table_febValues;
-    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[12]/td[4]")
+    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[8]/td[2]")
     public WebElement text_augMonthSum;
+    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[8]/td[3]")
+    public WebElement text_septMonthSum;
+    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[8]/td[4]")
+    public WebElement text_octMonthSum;
+    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[8]/td[5]")
+    public WebElement text_novMonthSum;
+    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[8]/td[6]")
+    public WebElement text_decMonthSum;
+    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[8]/td[7]")
+    public WebElement text_janMonthSum;
+    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[8]/td[8]")
+    public WebElement text_febMonthSum;
+    @FindBy(xpath = "//table[@class='MuiTable-root css-l6sbfr-MuiTable-root']/tbody/tr[8]/td[10]")
+    public WebElement text_grandTotalSum;
+    @FindBy(xpath = "//div[@class='MuiFormControl-root css-1nrlq1o-MuiFormControl-root']")
+    public WebElement dropdown_rowsPagination;
+    @FindBy(xpath = "//ul[@role='listbox']/li")
+    public List<WebElement> dropdown_rowsPaginationOptions;
+    @FindBy(xpath = "//button[@data-testid='pagination-next']")
+    public WebElement button_nextData;
 
 }
