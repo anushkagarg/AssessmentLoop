@@ -29,4 +29,6 @@ public class Page_Transactions {
     public WebElement button_applyFilter;
     @FindBy(xpath = "//table[@class='MuiTable-root css-15i8i05-MuiTable-root']")
     public WebElement table_transactions;
+    @FindBy(xpath = "//button[contains(text(),'Download')]")
+    public WebElement button_download;
 }
