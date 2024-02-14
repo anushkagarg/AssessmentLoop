@@ -1,20 +1,12 @@
 package tests;
 
-import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -25,16 +17,14 @@ import pages.Page_Transactions;
 import pages.Page_login;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 public class DataExtractionAndValidationTest {
     public static WebDriver driver;
     public static String homeUrl = "https://app.tryloop.ai/login/password";
@@ -66,7 +56,8 @@ public class DataExtractionAndValidationTest {
             pageLogin.input_emailId.sendKeys("qa-engineer-assignment@test.com");
             pageLogin.input_password.sendKeys("QApassword123$");
             pageLogin.button_login.click();
-            Thread.sleep(15000);
+            Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(d -> pageLogin.button_skipPhoneNo.isDisplayed());
             pageLogin.button_skipPhoneNo.click();
 
             String expectedUrl = driver.getCurrentUrl();
@@ -82,9 +73,10 @@ public class DataExtractionAndValidationTest {
         Page_HistoryStore pageHistoryStore = new Page_HistoryStore(driver);
         Page_Transactions oPageTransactions = new Page_Transactions(driver);
         String optionToSelect = "Transactions";
+        WebDriverWait wait = new WebDriverWait(driver,  Duration.ofSeconds(10));
         try {
             //opening transactions
-            Thread.sleep(5000);
+            wait.until(d -> pageHome.dropdown_3p.isDisplayed());
             pageHome.dropdown_3p.click();
             Thread.sleep(5000);
             for (WebElement eValue : pageHome.list_3p) {
@@ -96,22 +88,25 @@ public class DataExtractionAndValidationTest {
 
 
             try {
-                Thread.sleep(10000);
+               // Thread.sleep(10000);
+                wait.until(d -> oPageTransactions.dropdown_locations.isDisplayed());
                 //Selecting locations
                 oPageTransactions.dropdown_locations.click();
                 oPageTransactions.button_clearOptionSelected.click();
                 oPageTransactions.checkbox_firstLocation.click();
                 oPageTransactions.checkbox_secondLocation.click();
                 oPageTransactions.button_applyFilter.click();
-                Thread.sleep(5000);
+                //Thread.sleep(5000);
 
                 //Selecting marketplace
+                wait.until(d -> oPageTransactions.dropdown_marketplace.isDisplayed());
                 oPageTransactions.dropdown_marketplace.click();
                 oPageTransactions.button_clearOptionSelected.click();
                 oPageTransactions.checkbox_marketplaceOption.click();
                 oPageTransactions.button_applyFilter.click();
 
                 //selecting number of rows to be displayed
+                wait.until(d -> pageHistoryStore.dropdown_rowsPagination.isDisplayed());
                 pageHistoryStore.dropdown_rowsPagination.click();
                 for (WebElement ePaginationOption : pageHistoryStore.dropdown_rowsPaginationOptions) {
                     if (ePaginationOption.getText().equalsIgnoreCase("30 rows")) {
@@ -129,7 +124,7 @@ public class DataExtractionAndValidationTest {
 
                 // store the extracted data
                 List<String[]> data = new ArrayList<>();
-                String[] previousRowData = new String[columnNames.size()]; //8
+                String[] previousRowData = new String[columnNames.size()];
 
                 for (int i = 1; i < rows.size(); i++) {
                     List<WebElement> columns = rows.get(i).findElements(By.xpath(".//td"));
@@ -188,8 +183,6 @@ public class DataExtractionAndValidationTest {
                     DecimalFormat df = new DecimalFormat("#.##");
                     accuracy = Double.valueOf(df.format(accuracy));
                     System.out.println("Accuracy: " + (accuracy * 100) + "%");
-
-                    driver.quit();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -214,7 +207,12 @@ public class DataExtractionAndValidationTest {
 
                 String value1 = csvRow1[columnToCompare].trim();
               String value2 = csvRow2[columnToCompare1].trim().substring(1);
-                // Compare values
+
+                // Check if CSVs have different number of rows
+                if (csvRow1.length != csvRow2.length) {
+                    System.out.println("Row " + rowNumber + " has different number of columns in the two CSV files.");
+                }
+                //as both CSV rows are different so comparing one column value
                 if (!value1.equals(value2)) {
                     System.out.println("Mismatch found in row " + rowNumber + ", column " + columnToCompare + ": "
                             + "CSV1 value - " + value1 + ", CSV2 value - " + value2);
@@ -226,11 +224,11 @@ public class DataExtractionAndValidationTest {
             }
             csvReader1.close();
             csvReader2.close();
-            // Calculate accuracy
+
             if (totalEntries > 0) {
                 return (double) matchingEntries / totalEntries;
             } else {
-                return 0.0; // Avoid division by zero
+                return 0.0;
             }
         } catch (IOException e) {
             e.printStackTrace();
