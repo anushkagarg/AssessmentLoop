@@ -215,6 +215,8 @@ public class DataVerificationTest {
             System.out.println("Feb Sum: " + febSum);
 
              totalSum= augSum + sepSum+octSum+novSum+decSum+janSum+febSum;
+            DecimalFormat df = new DecimalFormat("#.##");
+            totalSum = Double.valueOf(df.format(totalSum));
             System.out.println("total Sum calculated: " + totalSum);
         }catch (Exception e){
             e.printStackTrace();
